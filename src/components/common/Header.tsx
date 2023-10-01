@@ -10,15 +10,17 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="flex items-center h-16 px-12 bg-black">
-      <div className="flex items-center w-8 h-full mr-5">
-        <img src={logoImage} alt="ロゴ" className="h-8" />
+    <header className="flex items-center h-20 px-12 bg-gradient-to-r from-blue-900 to-black">
+      <div className="flex items-center w-10 h-full mr-6">
+        <img src={logoImage} alt="ロゴ" className="h-10" />
       </div>
-      <h1 className="text-2xl text-white mr-auto">NBA Stats Quiz</h1>
-      <div className="w-30 h-full">
+      <h1 className="text-3xl font-semibold text-white mr-auto">
+        NBA Stats Quiz
+      </h1>
+      <div className="w-36 h-full">
         <button
           onClick={handleHomeClick}
-          className="w-full h-full px-0 text-2xl font-bold text-white bg-orange-500 hover:bg-orange-600"
+          className="flex items-center justify-center w-full h-full px-4 py-2 text-2xl font-bold text-white bg-orange-500 hover:bg-orange-600 shadow-md transition duration-300 ease-in-out transform hover:scale-105"
         >
           HOME
         </button>

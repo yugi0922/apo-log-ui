@@ -1,11 +1,15 @@
 import { AppRouter } from "./components/routes/Router";
 import Header from "./components/common/Header";
+import Footer from "./components/common/Footer";
 
 function App() {
   return (
-    <div className="App bg-gray-100 min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-900 to-black">
       <Header />
-      <AppRouter />
+      <div>
+        <AppRouter />
+      </div>
+      <Footer />
     </div>
   );
 }
