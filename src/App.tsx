@@ -6,7 +6,8 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-900 to-black">
       <Header />
-      <div>
+      {/* flex-grow をこの div に適用 */}
+      <div className="flex-grow">
         <AppRouter />
       </div>
       <Footer />

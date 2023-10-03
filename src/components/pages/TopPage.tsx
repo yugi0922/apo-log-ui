@@ -59,7 +59,7 @@ const TopPage: React.FC = () => {
       {/* 「QUIZ START」ボタンのデザインとサイズを変更 */}
       <button
         onClick={handleStartQuiz}
-        className="w-2/4 h-20 text-3xl font-bold bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
+        className="w-2/4 h-20 text-3xl mb-16 font-bold bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
       >
         QuiZ START
       </button>
