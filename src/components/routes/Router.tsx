@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import MatterList from "../pages/MatterList";
 import TopPage from "../pages/TopPage";
+import Quiz from "../pages/Quiz"; // Quizコンポーネントをインポート
 
 export const AppRouter = () => {
   return (
@@ -9,6 +10,8 @@ export const AppRouter = () => {
       <Routes>
         <Route path="/" element={<TopPage />} />
         <Route path="/list" element={<MatterList />} />
+        <Route path="/quiz" element={<Quiz />} />{" "}
+        {/* Quizページのルートを追加 */}
       </Routes>
     </div>
   );

@@ -1,15 +1,54 @@
 export interface Matter {
-  id: number; // int NOT NULL AUTO_INCREMENT
-  dead_flg: number | null; // tinyint DEFAULT NULL
-  nick_name: string; // varchar(255) NOT NULL
-  app_category: string | null; // varchar(255) DEFAULT NULL
-  age: number | null; // int DEFAULT NULL
-  looks_level: number | null; // int DEFAULT NULL
-  job: string | null; // varchar(255) DEFAULT NULL
-  address: string | null; // varchar(255) DEFAULT NULL
-  fhase: string | null; // varchar(255) DEFAULT NULL
-  next_apo_date: string | null; // datetime DEFAULT NULL
-  note: string | null; // varchar(255) DEFAULT NULL
-  created_at: string; // datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6)
-  updated_at: string; // datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+  id: number;
+  dead_flg: number | null;
+  nick_name: string;
+  app_category: string | null;
+  age: number | null;
+  looks_level: number | null;
+  job: string | null;
+  address: string | null;
+  fhase: string | null;
+  next_apo_date: string | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// playerのインターフェースを追加
+export interface Player {
+  id: number;
+  firstname: string;
+  lastname: string;
+  firstname_en: string | null;
+  lastname_en: string | null;
+  back_number: number | null;
+  position: string;
+  position2: string | null;
+  meter: number;
+  kg: number;
+  seazon1: number;
+  seazon2: number;
+  team: string;
+  team2: string | null;
+  game: number | null;
+  gs: number | null;
+  mpg: number | null;
+  percent_fg: number | null;
+  percent_3point: number | null;
+  percent_ft: number | null;
+  rate_off: number | null;
+  rate_def: number | null;
+  ppg: number | null;
+  rpg: number | null;
+  apg: number | null;
+  spg: number | null;
+  bpg: number | null;
+  turnover: number | null;
+  per_foul: number | null;
+  easy: number | null;
+  normal: number | null;
+  hard: number | null;
+  historic: number | null;
+  created_at: string;
+  updated_at: string;
 }

@@ -19,8 +19,8 @@ const TopPage: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-start bg-gray-50 pt-10">
       {/* 上部にさらに寄せるために変更 */}
-      <h1 className="text-4xl mb-4">|Rank|</h1>
-      <div className="mb-8 space-y-4 flex flex-col">
+      <h1 className="text-4xl mb-12">|Rank|</h1>
+      <div className="mb-16 space-y-4 flex flex-col">
         {" "}
         {/* 難易度ボタンと「START」ボタンの間隔を開けるために変更 */}
         {/* ボタンを縦並びに変更 */}
@@ -53,13 +53,13 @@ const TopPage: React.FC = () => {
               : "bg-white border border-blue-500 text-blue-500"
           }`}
         >
-          HARD ローテション級
+          HARD ローテーション級
         </button>
       </div>
       {/* 「QUIZ START」ボタンのデザインとサイズを変更 */}
       <button
         onClick={handleStartQuiz}
-        className="w-2/4 h-20 text-3xl mb-16 font-bold bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
+        className="w-2/4 h-20 text-3xl mb-32 font-bold bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
       >
         QuiZ START
       </button>
