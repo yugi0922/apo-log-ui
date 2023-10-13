@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Player } from "../models/interface";
+import ResultModal from "../common/ResultModal";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -16,18 +17,32 @@ const Quiz = () => {
   const [answer, setAnswer] = useState<string>("");
   const [result, setResult] = useState<string>("");
 
+  // ポップアップ表示用のstate
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   useEffect(() => {
+    // データの取得関数
     const fetchData = async () => {
       try {
         const response = await api.get<Player>("/easy");
         setPlayer(response.data);
+        // ヒントの表示をリセット
+        setHintsShown({
+          team: false,
+          position: false,
+          size: false,
+        });
+        // 回答のリセット
+        setAnswer("");
+        // 結果のリセット
+        setResult("");
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [isModalOpen]);
 
   if (!player) {
     return <div className="text-center p-5">データ取得中...</div>;
@@ -43,6 +58,8 @@ const Quiz = () => {
     } else {
       setResult("NG..");
     }
+    // 結果を表示する代わりにポップアップを表示
+    setIsModalOpen(true);
   };
 
   return (
@@ -157,6 +174,15 @@ const Quiz = () => {
           </div>
         </div>
       </div>
+      {/* 結果を表示するポップアップ */}
+      <ResultModal
+        isOpen={isModalOpen}
+        result={result}
+        onNext={() => {
+          setIsModalOpen(false); // モーダルを閉じる
+        }}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
