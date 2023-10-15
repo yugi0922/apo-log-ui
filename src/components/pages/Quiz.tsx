@@ -8,6 +8,7 @@ const api = axios.create({
 });
 
 const Quiz = () => {
+  const ALL_QUIZ_COUNT = 10; // 全問題数
   const [player, setPlayer] = useState<Player | null>(null);
   const [hintsShown, setHintsShown] = useState<{ [key: string]: boolean }>({
     team: false,
@@ -20,29 +21,31 @@ const Quiz = () => {
   // ポップアップ表示用のstate
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // 現在の問題番号のstateを追加
+  const [quizCount, setQuizCount] = useState<number>(1); // 変更箇所
+  // データの取得関数
+  const fetchData = async () => {
+    try {
+      const response = await api.get<Player>("/easy");
+      setPlayer(response.data);
+      // ヒントの表示をリセット
+      setHintsShown({
+        team: false,
+        position: false,
+        size: false,
+      });
+      // 回答のリセット
+      setAnswer("");
+      // 結果のリセット
+      setResult("");
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   useEffect(() => {
-    // データの取得関数
-    const fetchData = async () => {
-      try {
-        const response = await api.get<Player>("/easy");
-        setPlayer(response.data);
-        // ヒントの表示をリセット
-        setHintsShown({
-          team: false,
-          position: false,
-          size: false,
-        });
-        // 回答のリセット
-        setAnswer("");
-        // 結果のリセット
-        setResult("");
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
+    // コンポーネントのマウント時のみデータを取得する
     fetchData();
-  }, [isModalOpen]);
+  }, []);
 
   if (!player) {
     return <div className="text-center p-5">データ取得中...</div>;
@@ -64,6 +67,7 @@ const Quiz = () => {
 
   return (
     <div className="bg-gray-50 flex flex-col items-center p-6 space-y-6">
+      {/* 変更箇所 */}
       <div className="w-full space-y-6">
         {/* Statsエリア */}
         <div className="p-5 border rounded-md">
@@ -156,21 +160,28 @@ const Quiz = () => {
           </div>
 
           {/* 回答フォーム */}
-          <div className="flex-1 ml-4 p-5 border rounded-md flex flex-col justify-center items-center">
+          <div className="flex-1 ml-4 p-5 border rounded-md flex flex-col relative">
+            {" "}
+            {/* 変更箇所 */}
+            <h3 className="text-lg font-medium mb-4">回答</h3>
             <input
-              className="w-2/3 p-2 border rounded-md mb-4"
+              className="w-full p-2 border rounded-md mb-4"
               type="text"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="選手の名前を入力"
             />
             <button
-              className="ml-4 w-full px-4 py-4 bg-green-500 text-white rounded-md"
+              className="w-full px-4 py-4 bg-green-500 text-white rounded-md mb-4"
               onClick={checkAnswer}
             >
               Answer
             </button>
-            <div className="mt-4 text-xl">{result}</div>
+            <div className="absolute bottom-2 right-2 text-lg text-white bg-teal-700 px-2 py-1 rounded">
+              {" "}
+              {/* 変更箇所 */}
+              問題数：{Math.min(quizCount, ALL_QUIZ_COUNT)}/{ALL_QUIZ_COUNT}
+            </div>
           </div>
         </div>
       </div>
@@ -180,6 +191,8 @@ const Quiz = () => {
         result={result}
         onNext={() => {
           setIsModalOpen(false); // モーダルを閉じる
+          fetchData(); // 新しいクイズを取得する
+          setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT)); // 問題番号を増やす // 変更箇所
         }}
         onClose={() => setIsModalOpen(false)}
       />
