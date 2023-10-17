@@ -5,6 +5,7 @@ interface ResultModalProps {
   result: string;
   onNext: () => void;
   onClose: () => void;
+  correctPlayerName?: string; // 追加: 正解の選手名
 }
 
 const ResultModal: React.FC<ResultModalProps> = ({
@@ -12,6 +13,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
   result,
   onNext,
   onClose,
+  correctPlayerName,
 }) => {
   if (!isOpen) return null;
 
@@ -22,7 +24,7 @@ const ResultModal: React.FC<ResultModalProps> = ({
     >
       {/* モーダルのコンテナ */}
       <div
-        className="bg-white rounded-xl p-8 flex flex-col items-center justify-center shadow-xl"
+        className="bg-white rounded-xl p-8 flex flex-col items-center justify-center shadow-xl w-4/5 max-w-xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 結果の表示 */}
@@ -33,6 +35,10 @@ const ResultModal: React.FC<ResultModalProps> = ({
         >
           {result === "OK！" ? "〇" : "×"}
         </p>
+        {/* 誤答時の正解の選手名表示 */}
+        {result !== "OK！" && (
+          <p className="text-2xl mb-4">{correctPlayerName}</p> // 追加箇所
+        )}
         {/* 次へのボタン */}
         <button
           onClick={onNext}

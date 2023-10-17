@@ -189,10 +189,11 @@ const Quiz = () => {
       <ResultModal
         isOpen={isModalOpen}
         result={result}
+        correctPlayerName={player.firstname + " " + player.lastname} // 追加箇所: 正解の選手名を渡す
         onNext={() => {
-          setIsModalOpen(false); // モーダルを閉じる
-          fetchData(); // 新しいクイズを取得する
-          setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT)); // 問題番号を増やす // 変更箇所
+          setIsModalOpen(false);
+          fetchData();
+          setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT));
         }}
         onClose={() => setIsModalOpen(false)}
       />
