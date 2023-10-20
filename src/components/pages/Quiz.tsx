@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Player } from "../models/interface";
 import ResultModal from "../common/ResultModal";
+import { useNavigate } from "react-router-dom"; // useNavigateをインポート
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -17,12 +18,16 @@ const Quiz = () => {
   });
   const [answer, setAnswer] = useState<string>("");
   const [result, setResult] = useState<string>("");
-
+  // 合計点数とヒント表示回数のstateを追加
+  const [score, setScore] = useState<number>(0);
+  const [hintCount, setHintCount] = useState<number>(0);
   // ポップアップ表示用のstate
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
   // 現在の問題番号のstateを追加
   const [quizCount, setQuizCount] = useState<number>(1); // 変更箇所
+  // useNavigateを使ってnavigate関数を取得
+  const navigate = useNavigate();
+
   // データの取得関数
   const fetchData = async () => {
     try {
@@ -53,16 +58,30 @@ const Quiz = () => {
 
   const showHint = (hintType: string) => {
     setHintsShown((prev) => ({ ...prev, [hintType]: true }));
+    setHintCount((prevCount) => prevCount + 1); // ヒントを表示するたびにカウントアップ
   };
 
   const checkAnswer = () => {
     if (answer === player.firstname || answer === player.lastname) {
       setResult("OK！");
+      setScore((prevScore) => prevScore + 10); // 正解の場合、点数を10点増やす
     } else {
       setResult("NG..");
     }
     // 結果を表示する代わりにポップアップを表示
     setIsModalOpen(true);
+  };
+  // 結果を表示するポップアップのonNext関数内での変更
+  const onNext = () => {
+    setIsModalOpen(false);
+    if (quizCount >= ALL_QUIZ_COUNT) {
+      navigate("/finalResult", {
+        state: { score, hintCount }, // スコアとヒントのカウントをstateとして渡す
+      });
+    } else {
+      fetchData();
+      setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT));
+    }
   };
 
   return (
@@ -161,7 +180,6 @@ const Quiz = () => {
 
           {/* 回答フォーム */}
           <div className="flex-1 ml-4 p-5 border rounded-md flex flex-col relative">
-            {" "}
             {/* 変更箇所 */}
             <h3 className="text-lg font-medium mb-4">回答</h3>
             <input
@@ -189,12 +207,8 @@ const Quiz = () => {
       <ResultModal
         isOpen={isModalOpen}
         result={result}
-        correctPlayerName={player.firstname + " " + player.lastname} // 追加箇所: 正解の選手名を渡す
-        onNext={() => {
-          setIsModalOpen(false);
-          fetchData();
-          setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT));
-        }}
+        correctPlayerName={player.firstname + " " + player.lastname}
+        onNext={() => onNext()}
         onClose={() => setIsModalOpen(false)}
       />
     </div>
