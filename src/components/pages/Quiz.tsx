@@ -97,10 +97,14 @@ const Quiz = () => {
       <div className="w-full space-y-6">
         {/* Statsエリア */}
         <Stats player={player} />
-        {/* HintZoneコンポーネントを使用 */}
-        <HintZone player={player} hintsShown={hintsShown} showHint={showHint} />
         {/* ヒントゾーンと回答フォーム */}
         <div className="w-full flex">
+          {/* HintZoneコンポーネントを使用 */}
+          <HintZone
+            player={player}
+            hintsShown={hintsShown}
+            showHint={showHint}
+          />
           {/* 回答フォーム */}
           <div className="flex-1 ml-4 p-5 border rounded-md flex flex-col relative">
             {/* 変更箇所 */}
