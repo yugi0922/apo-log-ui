@@ -3,6 +3,7 @@ import axios from "axios";
 import { Player } from "../models/interface";
 import Stats from "../common/Stats";
 import HintZone from "../common/HintZone";
+import AnswerForm from "../common/AnswerForm";
 import ResultModal from "../common/ResultModal";
 import { useNavigate } from "react-router-dom"; // useNavigateをインポート
 
@@ -63,7 +64,7 @@ const Quiz = () => {
     return <div className="text-center p-5">データ取得中...</div>;
   }
 
-  const showHint = (hintType: string) => {
+  const showHint = (hintType: "team" | "position" | "size") => {
     setHintsShown((prev) => ({ ...prev, [hintType]: true }));
     setHintCount((prevCount) => prevCount + 1); // ヒントを表示するたびにカウントアップ
   };
@@ -106,27 +107,13 @@ const Quiz = () => {
             showHint={showHint}
           />
           {/* 回答フォーム */}
-          <div className="flex-1 ml-4 p-5 border rounded-md flex flex-col relative">
-            {/* 変更箇所 */}
-            <h3 className="text-lg font-medium mb-4">回答</h3>
-            <input
-              className="w-full p-2 border rounded-md mb-4"
-              type="text"
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="選手の名前を入力"
-            />
-            <button
-              className="w-full px-4 py-4 bg-green-500 text-white rounded-md mb-4"
-              onClick={checkAnswer}
-            >
-              Answer
-            </button>
-            <div className="absolute bottom-2 right-2 text-lg text-white bg-teal-700 px-2 py-1 rounded">
-              {/* 変更箇所 */}
-              問題数：{Math.min(quizCount, ALL_QUIZ_COUNT)}/{ALL_QUIZ_COUNT}
-            </div>
-          </div>
+          <AnswerForm
+            answer={answer}
+            quizCount={quizCount}
+            ALL_QUIZ_COUNT={ALL_QUIZ_COUNT}
+            onAnswerChange={setAnswer}
+            onCheckAnswer={checkAnswer}
+          />
         </div>
       </div>
       {/* 結果を表示するポップアップ */}
