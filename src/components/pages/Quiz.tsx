@@ -7,12 +7,116 @@ import AnswerForm from "../common/AnswerForm";
 import ResultModal from "../common/ResultModal";
 import { useNavigate } from "react-router-dom"; // useNavigateをインポート
 
+// api
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_BASE_URL,
 });
 
+// 全問題数
+const ALL_QUIZ_COUNT = 10;
+
+// クイズ画面で使用する型定義
+type QuizState = {
+  player: Player | null;
+  hintsShown: {
+    team: boolean;
+    position: boolean;
+    size: boolean;
+  };
+  answer: string;
+  result: string;
+  score: number;
+  hintCount: number;
+  isModalOpen: boolean;
+  quizCount: number;
+};
+
+// 初期状態オブジェクト
+const initialState = {
+  player: null,
+  hintsShown: {
+    team: false,
+    position: false,
+    size: false,
+  },
+  answer: "",
+  result: "",
+  score: 0,
+  hintCount: 0,
+  isModalOpen: false,
+  quizCount: 1,
+};
+
+// アクションタイプの定数
+const SET_PLAYER = "SET_PLAYER";
+const TOGGLE_HINT_SHOWN = "TOGGLE_HINT_SHOWN"; // この行を追加
+const SET_ANSWER = "SET_ANSWER"; // この行を追加
+const SET_RESULT = "SET_RESULT"; // この行を追加
+const INCREMENT_SCORE = "INCREMENT_SCORE"; // この行を追加
+const INCREMENT_HINT_COUNT = "INCREMENT_HINT_COUNT"; // この行を追加
+const TOGGLE_MODAL = "TOGGLE_MODAL";
+const INCREMENT_QUIZ_COUNT = "INCREMENT_QUIZ_COUNT"; // この行を追加
+
+// アクションタイプの型定義
+type ActionType =
+  | { type: typeof SET_PLAYER; payload: Player }
+  | { type: typeof TOGGLE_HINT_SHOWN; hintType: "team" | "position" | "size" } // この行を修正
+  | { type: typeof SET_ANSWER; payload: string }
+  | { type: typeof SET_RESULT; payload: string } // この行を追加
+  | { type: typeof INCREMENT_SCORE } // この行を追加
+  | { type: typeof INCREMENT_HINT_COUNT } // この行を追加
+  | { type: typeof TOGGLE_MODAL }
+  | { type: typeof INCREMENT_QUIZ_COUNT }; // この行を追加
+
+// リデューサ関数の定義
+const quizReducer = (state: QuizState, action: ActionType): QuizState => {
+  switch (action.type) {
+    // プレイヤー情報をセット
+    case "SET_PLAYER":
+      return { ...state, player: action.payload };
+
+    // 指定されたヒントの表示を切り替える
+    case "TOGGLE_HINT_SHOWN":
+      return {
+        ...state,
+        hintsShown: {
+          ...state.hintsShown,
+          [action.hintType]: !state.hintsShown[action.hintType],
+        },
+      };
+
+    // 回答をセット
+    case "SET_ANSWER":
+      return { ...state, answer: action.payload };
+
+    // 結果をセット (OK または NG)
+    case "SET_RESULT":
+      return { ...state, result: action.payload };
+
+    // スコアを増やす
+    case "INCREMENT_SCORE":
+      return { ...state, score: state.score + 10 };
+
+    // ヒントのカウントを増やす
+    case "INCREMENT_HINT_COUNT":
+      return { ...state, hintCount: state.hintCount + 1 };
+
+    // モーダルの表示を切り替える
+    case "TOGGLE_MODAL":
+      return { ...state, isModalOpen: !state.isModalOpen };
+
+    // クイズのカウントを増やす
+    case "INCREMENT_QUIZ_COUNT":
+      return {
+        ...state,
+        quizCount: Math.min(state.quizCount + 1, ALL_QUIZ_COUNT),
+      };
+
+    default:
+      return state;
+  }
+};
 const Quiz = () => {
-  const ALL_QUIZ_COUNT = 10; // 全問題数
   const [player, setPlayer] = useState<Player | null>(null);
   const [hintsShown, setHintsShown] = useState<{
     team: boolean;
