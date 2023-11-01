@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useEffect, useReducer } from "react";
+import { api } from "../common/apiConfig";
 import { Player } from "../models/interface";
 import Stats from "../common/Stats";
 import HintZone from "../common/HintZone";
 import AnswerForm from "../common/AnswerForm";
 import ResultModal from "../common/ResultModal";
-import { useNavigate } from "react-router-dom"; // useNavigateをインポート
-
-// api
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
-});
+import { useNavigate } from "react-router-dom";
+import ErrorMessage from "../common/ErrorMessage";
 
 // 全問題数
 const ALL_QUIZ_COUNT = 10;
 
-// クイズ画面で使用する型定義
 type QuizState = {
   player: Player | null;
   hintsShown: {
@@ -29,9 +24,9 @@ type QuizState = {
   hintCount: number;
   isModalOpen: boolean;
   quizCount: number;
+  error: string | null;
 };
 
-// 初期状態オブジェクト
 const initialState = {
   player: null,
   hintsShown: {
@@ -45,38 +40,44 @@ const initialState = {
   hintCount: 0,
   isModalOpen: false,
   quizCount: 1,
+  error: null,
 };
 
-// アクションタイプの定数
+// アクションタイプの定数を定義
+// これらの定数はアクションの種類を区別するために使用される
 const SET_PLAYER = "SET_PLAYER";
-const TOGGLE_HINT_SHOWN = "TOGGLE_HINT_SHOWN"; // この行を追加
-const SET_ANSWER = "SET_ANSWER"; // この行を追加
-const SET_RESULT = "SET_RESULT"; // この行を追加
-const INCREMENT_SCORE = "INCREMENT_SCORE"; // この行を追加
-const INCREMENT_HINT_COUNT = "INCREMENT_HINT_COUNT"; // この行を追加
+const TOGGLE_HINT_SHOWN = "TOGGLE_HINT_SHOWN";
+const RESET_HINTS = "RESET_HINTS"; // ヒントの状態をリセットするためのアクションタイプを追加
+const SET_ANSWER = "SET_ANSWER";
+const SET_RESULT = "SET_RESULT";
+const INCREMENT_SCORE = "INCREMENT_SCORE";
+const INCREMENT_HINT_COUNT = "INCREMENT_HINT_COUNT";
 const TOGGLE_MODAL = "TOGGLE_MODAL";
-const INCREMENT_QUIZ_COUNT = "INCREMENT_QUIZ_COUNT"; // この行を追加
+const INCREMENT_QUIZ_COUNT = "INCREMENT_QUIZ_COUNT";
+const SET_ERROR = "SET_ERROR";
 
-// アクションタイプの型定義
 type ActionType =
   | { type: typeof SET_PLAYER; payload: Player }
-  | { type: typeof TOGGLE_HINT_SHOWN; hintType: "team" | "position" | "size" } // この行を修正
+  | { type: typeof TOGGLE_HINT_SHOWN; hintType: "team" | "position" | "size" }
+  | { type: typeof RESET_HINTS } // ヒントの状態をリセットするためのアクションタイプを追加
   | { type: typeof SET_ANSWER; payload: string }
-  | { type: typeof SET_RESULT; payload: string } // この行を追加
-  | { type: typeof INCREMENT_SCORE } // この行を追加
-  | { type: typeof INCREMENT_HINT_COUNT } // この行を追加
+  | { type: typeof SET_RESULT; payload: string }
+  | { type: typeof INCREMENT_SCORE }
+  | { type: typeof INCREMENT_HINT_COUNT }
   | { type: typeof TOGGLE_MODAL }
-  | { type: typeof INCREMENT_QUIZ_COUNT }; // この行を追加
+  | { type: typeof INCREMENT_QUIZ_COUNT }
+  | { type: typeof SET_ERROR; payload: string };
 
 // リデューサ関数の定義
+// この関数は現在の状態と、実行したいアクションを元に新しい状態を返す
 const quizReducer = (state: QuizState, action: ActionType): QuizState => {
   switch (action.type) {
-    // プレイヤー情報をセット
-    case "SET_PLAYER":
+    case SET_PLAYER:
+      // プレイヤー情報をセットする
       return { ...state, player: action.payload };
 
-    // 指定されたヒントの表示を切り替える
-    case "TOGGLE_HINT_SHOWN":
+    case TOGGLE_HINT_SHOWN:
+      // 指定されたヒントの表示状態をトグルする（表示 <=> 非表示）
       return {
         ...state,
         hintsShown: {
@@ -84,149 +85,162 @@ const quizReducer = (state: QuizState, action: ActionType): QuizState => {
           [action.hintType]: !state.hintsShown[action.hintType],
         },
       };
+    case RESET_HINTS:
+      // ヒントの表示状態を初期状態（全て非表示）にリセット
+      return {
+        ...state,
+        hintsShown: {
+          team: false,
+          position: false,
+          size: false,
+        },
+      };
 
-    // 回答をセット
-    case "SET_ANSWER":
+    case SET_ANSWER:
+      // ユーザーの回答をセットする
       return { ...state, answer: action.payload };
 
-    // 結果をセット (OK または NG)
-    case "SET_RESULT":
+    case SET_RESULT:
+      // 回答結果をセットする (OK or NG)
       return { ...state, result: action.payload };
 
-    // スコアを増やす
-    case "INCREMENT_SCORE":
+    case INCREMENT_SCORE:
+      // 正解の場合、スコアを10点増加させる
       return { ...state, score: state.score + 10 };
 
-    // ヒントのカウントを増やす
-    case "INCREMENT_HINT_COUNT":
+    case INCREMENT_HINT_COUNT:
+      // ヒントを使用した場合、使用回数をカウントアップする
       return { ...state, hintCount: state.hintCount + 1 };
 
-    // モーダルの表示を切り替える
-    case "TOGGLE_MODAL":
+    case TOGGLE_MODAL:
+      // モーダルの表示状態をトグルする
       return { ...state, isModalOpen: !state.isModalOpen };
 
-    // クイズのカウントを増やす
-    case "INCREMENT_QUIZ_COUNT":
+    case INCREMENT_QUIZ_COUNT:
+      // クイズの番号を1つ進める（最大値はALL_QUIZ_COUNT）
       return {
         ...state,
         quizCount: Math.min(state.quizCount + 1, ALL_QUIZ_COUNT),
       };
-
+    case SET_ERROR:
+      return { ...state, error: action.payload };
     default:
       return state;
   }
 };
-const Quiz = () => {
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [hintsShown, setHintsShown] = useState<{
-    team: boolean;
-    position: boolean;
-    size: boolean;
-  }>({
-    team: false,
-    position: false,
-    size: false,
-  });
 
-  const [answer, setAnswer] = useState<string>("");
-  const [result, setResult] = useState<string>("");
-  // 合計点数とヒント表示回数のstateを追加
-  const [score, setScore] = useState<number>(0);
-  const [hintCount, setHintCount] = useState<number>(0);
-  // ポップアップ表示用のstate
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  // 現在の問題番号のstateを追加
-  const [quizCount, setQuizCount] = useState<number>(1); // 変更箇所
-  // useNavigateを使ってnavigate関数を取得
+const Quiz = () => {
+  // useReducerを使用して状態とディスパッチ関数を取得
+  // ディスパッチ関数はアクションを実行するための関数
+  const [state, dispatch] = useReducer(quizReducer, initialState);
   const navigate = useNavigate();
 
-  // データの取得関数
-  const fetchData = async () => {
+  // 初期データの取得
+  const fetchData = async (isMounted: boolean) => {
     try {
       const response = await api.get<Player>("/easy");
-      setPlayer(response.data);
-      // ヒントの表示をリセット
-      setHintsShown({
-        team: false,
-        position: false,
-        size: false,
-      });
-      // 回答のリセット
-      setAnswer("");
-      // 結果のリセット
-      setResult("");
+      // ここでisMountedを確認して、コンポーネントがまだマウントされている場合のみ状態を更新
+      if (isMounted) {
+        dispatch({ type: SET_PLAYER, payload: response.data });
+        dispatch({ type: SET_ANSWER, payload: "" });
+        dispatch({ type: SET_RESULT, payload: "" });
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      // ここでもisMountedを確認して、コンポーネントがまだマウントされている場合のみ状態を更新
+      if (isMounted) {
+        dispatch({
+          type: SET_ERROR,
+          payload: "問題の取得中にエラーが発生しました。",
+        });
+      }
     }
   };
+
   useEffect(() => {
-    // コンポーネントのマウント時のみデータを取得する
-    fetchData();
+    let isMounted = true; // マウント状態を追跡する変数をtrueに設定
+
+    fetchData(isMounted);
+
+    // クリーンアップ関数
+    return () => {
+      isMounted = false; // コンポーネントのアンマウント時に変数をfalseに設定
+    };
   }, []);
 
-  if (!player) {
+  if (!state.player) {
     return <div className="text-center p-5">データ取得中...</div>;
   }
 
+  // エラーがある場合、エラーメッセージを表示
+  if (state.error) {
+    return <ErrorMessage message={state.error} />;
+  }
+  // ヒントを表示
   const showHint = (hintType: "team" | "position" | "size") => {
-    setHintsShown((prev) => ({ ...prev, [hintType]: true }));
-    setHintCount((prevCount) => prevCount + 1); // ヒントを表示するたびにカウントアップ
+    dispatch({ type: TOGGLE_HINT_SHOWN, hintType });
+    dispatch({ type: INCREMENT_HINT_COUNT });
   };
 
+  // 回答をチェック
   const checkAnswer = () => {
-    if (answer === player.firstname || answer === player.lastname) {
-      setResult("OK！");
-      setScore((prevScore) => prevScore + 10); // 正解の場合、点数を10点増やす
-    } else {
-      setResult("NG..");
+    if (!state.player) {
+      return;
     }
-    // 結果を表示する代わりにポップアップを表示
-    setIsModalOpen(true);
+
+    if (
+      state.answer === state.player.firstname ||
+      state.answer === state.player.lastname
+    ) {
+      dispatch({ type: SET_RESULT, payload: "OK！" });
+      dispatch({ type: INCREMENT_SCORE });
+    } else {
+      dispatch({ type: SET_RESULT, payload: "NG.." });
+    }
+    dispatch({ type: TOGGLE_MODAL });
   };
-  // 結果を表示するポップアップのonNext関数内での変更
+
+  // 次の問題または結果画面に進む
   const onNext = () => {
-    setIsModalOpen(false);
-    if (quizCount >= ALL_QUIZ_COUNT) {
+    dispatch({ type: TOGGLE_MODAL });
+    if (state.quizCount >= ALL_QUIZ_COUNT) {
       navigate("/finalResult", {
-        state: { score, hintCount }, // スコアとヒントのカウントをstateとして渡す
+        state: { score: state.score, hintCount: state.hintCount },
       });
     } else {
-      fetchData();
-      setQuizCount((prevCount) => Math.min(prevCount + 1, ALL_QUIZ_COUNT));
+      fetchData(true);
+      dispatch({ type: INCREMENT_QUIZ_COUNT });
     }
+    // 回答をチェックした後、ヒントの表示状態を初期状態（非表示）にリセット
+    dispatch({ type: RESET_HINTS });
   };
 
   return (
     <div className="bg-gray-50 flex flex-col items-center p-6 space-y-6">
-      {/* 変更箇所 */}
       <div className="w-full space-y-6">
-        {/* Statsエリア */}
-        <Stats player={player} />
-        {/* ヒントゾーンと回答フォーム */}
+        <Stats player={state.player} />
         <div className="w-full flex">
-          {/* HintZoneコンポーネントを使用 */}
           <HintZone
-            player={player}
-            hintsShown={hintsShown}
+            player={state.player}
+            hintsShown={state.hintsShown}
             showHint={showHint}
           />
-          {/* 回答フォーム */}
           <AnswerForm
-            answer={answer}
-            quizCount={quizCount}
+            answer={state.answer}
+            quizCount={state.quizCount}
             ALL_QUIZ_COUNT={ALL_QUIZ_COUNT}
-            onAnswerChange={setAnswer}
+            onAnswerChange={(answer) =>
+              dispatch({ type: SET_ANSWER, payload: answer })
+            }
             onCheckAnswer={checkAnswer}
           />
         </div>
       </div>
-      {/* 結果を表示するポップアップ */}
       <ResultModal
-        isOpen={isModalOpen}
-        result={result}
-        correctPlayerName={player.firstname + " " + player.lastname}
-        onNext={() => onNext()}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={state.isModalOpen}
+        result={state.result}
+        correctPlayerName={state.player.firstname + " " + state.player.lastname}
+        onNext={onNext}
+        onClose={() => dispatch({ type: TOGGLE_MODAL })}
       />
     </div>
   );
