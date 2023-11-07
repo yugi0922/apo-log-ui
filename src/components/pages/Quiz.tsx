@@ -148,6 +148,7 @@ const Quiz = () => {
     } catch (error) {
       // ここでもisMountedを確認して、コンポーネントがまだマウントされている場合のみ状態を更新
       if (isMounted) {
+        // プレイヤー情報の取得に失敗した場合のエラーメッセージを変更する
         dispatch({
           type: SET_ERROR,
           payload: "問題の取得中にエラーが発生しました。",
@@ -167,13 +168,17 @@ const Quiz = () => {
     };
   }, []);
 
-  if (!state.player) {
-    return <div className="text-center p-5">データ取得中...</div>;
+  // プレイヤー情報が取得できていない場合、エラーメッセージを表示
+  if (!state.player && state.error) {
+    return <ErrorMessage message={state.error} />;
   }
 
-  // エラーがある場合、エラーメッセージを表示
-  if (state.error) {
-    return <ErrorMessage message={state.error} />;
+  // プレイヤー情報が取得できていない場合、エラーメッセージを表示
+  // またはプレイヤー情報がnullである場合はStatsコンポーネントを表示しない
+  if (!state.player) {
+    if (state.error) {
+      return <ErrorMessage message={state.error} />;
+    }
   }
   // ヒントを表示
   const showHint = (hintType: "team" | "position" | "size") => {
@@ -217,13 +222,15 @@ const Quiz = () => {
   return (
     <div className="bg-gray-50 flex flex-col items-center p-6 space-y-6">
       <div className="w-full space-y-6">
-        <Stats player={state.player} />
+        {state.player && <Stats player={state.player} />}
         <div className="w-full flex">
-          <HintZone
-            player={state.player}
-            hintsShown={state.hintsShown}
-            showHint={showHint}
-          />
+          {state.player && (
+            <HintZone
+              player={state.player}
+              hintsShown={state.hintsShown}
+              showHint={showHint}
+            />
+          )}
           <AnswerForm
             answer={state.answer}
             quizCount={state.quizCount}
@@ -235,13 +242,15 @@ const Quiz = () => {
           />
         </div>
       </div>
-      <ResultModal
-        isOpen={state.isModalOpen}
-        result={state.result}
-        correctPlayerName={state.player.firstname + " " + state.player.lastname}
-        onNext={onNext}
-        onClose={() => dispatch({ type: TOGGLE_MODAL })}
-      />
+      {state.player && (
+        <ResultModal
+          isOpen={state.isModalOpen}
+          result={state.result}
+          correctPlayerName={`${state.player.firstname} ${state.player.lastname}`}
+          onNext={onNext}
+          onClose={() => dispatch({ type: TOGGLE_MODAL })}
+        />
+      )}
     </div>
   );
 };
