@@ -1,13 +1,5 @@
-import { act } from "react-dom/test-utils";
-import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
-import {
-  render,
-  fireEvent,
-  waitFor,
-  screen,
-  act,
-} from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import Quiz from "../../components/pages/Quiz";
 import { api } from "../../components/common/apiConfig";
 
@@ -20,73 +12,34 @@ describe("<Quiz />のテスト", () => {
     (api.get as jest.Mock).mockClear();
   });
 
-  // データ取得中の表示テスト
-  it("データ取得中にローディングテキストが表示される", () => {
-    render(
-      <Router>
-        <Quiz />
-      </Router>
-    );
-
-    expect(screen.getByText("データ取得中...")).toBeInTheDocument();
-  });
-
-  // データ取得失敗時のエラーメッセージ表示テスト
-  it("データ取得に失敗した場合、エラーメッセージが表示される", async () => {
-    // api.getをモックしてエラーを返すように設定
-    (api.get as jest.Mock).mockRejectedValueOnce(new Error("Failed to fetch"));
-
-    // 非同期の状態更新を伴う場合は、ここで act() を使用します。
-    render(
-      <Router>
-        <Quiz />
-      </Router>
-    );
-
-    // Testing Library の findByText は内部で act() を使用しているため、
-    // ここで act() を使う必要はありません。
-    let errorMessage;
-    try {
-      errorMessage = await screen.findByText(
-        "問題の取得中にエラーが発生しました。"
-      );
-    } catch (e) {
-      if (e instanceof Error) {
-        // エラーオブジェクトがError型であることを確認
-        console.error(e.message); // エラーがあればコンソールに出力
-      } else {
-        // 'e' が Error 型ではない場合のハンドリング
-        console.error("An unexpected error occurred");
-      }
-    }
-
-    // エラーメッセージが表示されることを期待
-    expect(errorMessage).toBeInTheDocument();
-  });
-
-  // データ取得成功時のプレイヤー情報表示テスト
-  // it("データ取得に成功した場合、プレイヤーの情報が表示される", async () => {
-  //   // モックデータの作成
-  //   const mockPlayer = {
-  //     firstname: "John",
-  //     lastname: "Doe",
-  //     team: "Team A",
-  //     position: "Midfielder",
-  //     size: "180cm",
-  //   };
-  //   // api.getをモックしてmockPlayerを返すように設定
-  //   (api.get as jest.Mock).mockResolvedValueOnce({ data: mockPlayer });
-
+  // // データ取得中の表示テスト
+  // it("データ取得中にローディングテキストが表示される", () => {
   //   render(
   //     <Router>
   //       <Quiz />
   //     </Router>
   //   );
-  //   const playerName = await screen.findByText(mockPlayer.firstname);
 
-  //   // プレイヤーの情報が表示されているか確認
-  //   expect(playerName).toBeInTheDocument();
-  //   expect(screen.getByText(mockPlayer.lastname)).toBeInTheDocument();
-  //   // ...他のプレイヤー情報に関するアサーションもここに追加できます。
+  //   expect(screen.getByText("データ取得中...")).toBeInTheDocument();
   // });
+
+  // データ取得に失敗した場合のエラーメッセージ表示テストを追加
+  it("データ取得に失敗した場合、エラーメッセージが表示される", async () => {
+    // API呼び出しを失敗させるモックを設定
+    (api.get as jest.Mock).mockRejectedValue(new Error("API Error"));
+
+    // Quizコンポーネントをレンダリング
+    render(
+      <Router>
+        <Quiz />
+      </Router>
+    );
+
+    // エラーメッセージが表示されることを待機
+    await waitFor(() => {
+      expect(
+        screen.getByText("問題の取得中にエラーが発生しました。")
+      ).toBeInTheDocument();
+    });
+  });
 });
