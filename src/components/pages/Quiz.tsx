@@ -138,7 +138,7 @@ const Quiz = () => {
   // 初期データの取得
   const fetchData = async (isMounted: boolean) => {
     try {
-      console.log(api.defaults.baseURL); // Axios インスタンスの場合
+      console.log("api.defaults.baseURL" + api.defaults.baseURL); // Axios インスタンスの場合
       const response = await api.get<Player>("/easy");
       // ここでisMountedを確認して、コンポーネントがまだマウントされている場合のみ状態を更新
       if (isMounted) {
