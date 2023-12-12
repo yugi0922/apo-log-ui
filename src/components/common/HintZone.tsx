@@ -28,7 +28,7 @@ const HintZone: React.FC<HintZoneProps> = ({
         onClick={() => showHint("team")}
         disabled={hintsShown.team}
       >
-        チーム:
+        チーム：
         {hintsShown.team &&
           `${player.team}${player.team2 ? "-" + player.team2 : ""}`}
       </button>
@@ -41,7 +41,7 @@ const HintZone: React.FC<HintZoneProps> = ({
         onClick={() => showHint("position")}
         disabled={hintsShown.position}
       >
-        ポジション:
+        ポジション：
         {hintsShown.position &&
           `${player.position}${player.position2 ? "/" + player.position2 : ""}`}
       </button>
@@ -54,7 +54,7 @@ const HintZone: React.FC<HintZoneProps> = ({
         onClick={() => showHint("size")}
         disabled={hintsShown.size}
       >
-        体重/身長:
+        体重/身長：
         {hintsShown.size && `${player.kg}/${player.meter}`}
       </button>
     </div>
