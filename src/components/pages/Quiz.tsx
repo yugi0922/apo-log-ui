@@ -138,6 +138,7 @@ const Quiz = () => {
   // 初期データの取得
   const fetchData = async (isMounted: boolean) => {
     try {
+      console.log(api); // ここに追加
       const response = await api.get<Player>("/easy");
       // ここでisMountedを確認して、コンポーネントがまだマウントされている場合のみ状態を更新
       if (isMounted) {
