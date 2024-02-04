@@ -9,10 +9,7 @@ export const AppRouter = () => {
     <div className="flex flex-col flex-grow">
       {/* 追加したdiv */}
       <Routes>
-        <Route path="/" element={<TopPage />} />
-        <Route path="/list" element={<MatterList />} />
-        <Route path="/quiz" element={<Quiz />} />{" "}
-        <Route path="/finalResult" element={<Result />} />{" "}
+        <Route path="/" element={<MatterList />} />
       </Routes>
     </div>
   );
