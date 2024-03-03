@@ -11,11 +11,8 @@ const Header: React.FC = () => {
 
   return (
     <header className="flex items-center h-20 px-12 bg-gradient-to-r from-blue-900 to-black">
-      <div className="flex items-center w-10 h-full mr-6">
-        <img src={logoImage} alt="ロゴ" className="h-10" />
-      </div>
       <h1 className="text-3xl font-semibold text-white mr-auto">
-        NBA Stats Quiz
+        アポログ
       </h1>
       <div className="w-36 h-full">
         <button

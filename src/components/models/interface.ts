@@ -1,17 +1,32 @@
 export interface Matter {
   id: number;
-  dead_flg: number | null;
-  nick_name: string;
-  app_category: string | null;
+  apoCategory: string | null; // DDLに追加されたフィールド
+  deadFlg: number | null; // tinyint型ですが、TypeScriptではnumber型を使用
+  nickName: string;
+  appCategory: string | null;
   age: number | null;
-  looks_level: number | null;
+  looksLevel: number | null;
   job: string | null;
   address: string | null;
-  fhase: string | null;
-  next_apo_date: string | null;
+  fhase: string | null; 
+  nextApoDate: string | null; // datetime型ですが、TypeScriptではstring型を使用
   note: string | null;
-  created_at: string;
-  updated_at: string;
+  createdAt: string; // datetime(6)型ですが、TypeScriptではstring型を使用
+  updatedAt: string; // datetime(6)型ですが、TypeScriptではstring型を使用
+  completeFlg: number | null; // DDLに追加されたフィールド
+  apoResult: string | null; // DDLに追加されたフィールド
+  consumeMoney: number | null; // DDLに追加されたフィールド
+}
+
+export interface ApoResult {
+  countApoTotal: number;
+  countSokuTotal: number;
+  countApoTotalMonthBefore: number;
+  rateSokuMonthBefore: number;
+  countMoneyTotalMonthBefore: number;
+  forecastApoTotalCurrentMonth: number;
+  rateSokuCurrentMonth: number;
+  countMoneyTotalCurrentMonth: number;
 }
 
 // playerのインターフェースを追加
